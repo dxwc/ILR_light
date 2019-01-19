@@ -65,6 +65,7 @@ function onStateChange(e)
     if(e.data == YT.PlayerState.PLAYING)
     {
         document.getElementById('info').innerHTML = 'Good (TODO: send to backend)';
+        send_data(e.target.getVideoData().video_id, e.target.getDuration());
         e.target.stopVideo();
     }
 }
@@ -85,6 +86,40 @@ function onError(e)
     }
 }
 // </iframe API functions> --------------------------------------------------
+
+// <send data> --------------------------------------------------------------
+function send_data(id, duration)
+{
+    console.log(id, duration);
+    let info = document.getElementById('info');
+    return Promise.resolve()
+    .then(() =>
+    {
+        info.innerHTML = 'Sending request to server...'
+        return fetch
+        (
+            '/',
+            {
+                method : 'POST',
+                body : JSON.stringify({ id : id, duration : duration }),
+                headers : { 'Content-Type' : 'application/json' }
+            }
+        );
+    })
+    .then((res) => res.json())
+    .then((res) =>
+    {
+        if(!res.stream_id) throw new Error('Did not recieve stream id');
+        info.innerHTML = 'Confirmed. Redirecting to stream page...';
+        setTimeout(() => window.location.href = '/stream/' + res.stream_id, 300);
+    })
+    .catch((err) =>
+    {
+        info.innerHTML = 'Sorry, recieved an unexpected response back from server';
+        console.error(err);
+    });
+}
+// </send data> -------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () =>
 {
