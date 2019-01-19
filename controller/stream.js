@@ -20,55 +20,54 @@ router.get('/data/:id', (req, res) =>
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Connection', 'keep-alive');
 
-    function event_listener()
+    function event_listener(should_end)
     {
-        try // stream can end while processing
+        if(should_end)
         {
-            let stream_id = req.params.id;
+            res.write(`data: ${JSON.stringify({ end : true })}\n\n`);
+            return res.end();
+        }
+
+        try // if stream ends while processing (emit async)
+        {
             res.write
             (
                 `data: ${
                 JSON.stringify
                 (
                     {
-                        video_id : global.streams[stream_id].video_id,
+                        video_id : global.streams[req.params.id].video_id,
                         play_at  :
                         (
                             new Date().getTime() -
-                            global.streams[stream_id].start_time
+                            global.streams[req.params.id].start_time
                         )/1000
                     }
                 )}\n\n`
             );
-
-            if
-            (
-                (new Date().getTime() - global.streams[stream_id].start_time)/1000 >
-                global.streams[stream_id].duration
-            )
-            {
-                delete global.streams[stream_id];
-            }
         }
         catch(err)
         {
-            //
+            console.error(err);
+            try
+            {
+                res.write(`data: ${JSON.stringify({ end : true })}\n\n`);
+                return res.end();
+            }
+            catch(err) { }
         }
     }
 
-    try
+    let viewer_name = uuid();
+    global.streams[req.params.id].viewers.on(viewer_name, event_listener);
+    res.on('close', () =>
     {
-        let viewer_name = uuid();
-        global.streams[req.params.id].viewers.on(viewer_name, event_listener);
-        res.on('close', () =>
+        if(global.streams[req.params.id])
+        {
             global.streams[req.params.id].viewers
-            .removeListener(viewer_name, event_listener));
-    }
-    catch(err)
-    {
-        //
-    }
-
+            .removeListener(viewer_name, event_listener);
+        }
+    });
 });
 
 module.exports = router;

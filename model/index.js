@@ -18,12 +18,22 @@ setInterval(() =>
 {
     Object.keys(global.streams).forEach((key) =>
     {
-        try
+        let a_stream = global.streams[key];
+        if
+        (
+            (new Date().getTime() - a_stream.start_time)/1000 >
+            a_stream.duration
+        )
         {
-            let viewers = global.streams[key].viewers;
+            let viewers = a_stream.viewers;
+            viewers.eventNames().forEach((v) => viewers.emit(v, true));
+            delete global.streams[key];
+        }
+        else
+        {
+            let viewers = a_stream.viewers;
             viewers.eventNames().forEach((v) => viewers.emit(v));
         }
-        catch(err){ }
     })
 }, 1000)
 
