@@ -18,8 +18,12 @@ setInterval(() =>
 {
     Object.keys(global.streams).forEach((key) =>
     {
-        let viewers = global.streams[key].viewers;
-        viewers.eventNames().forEach((v) => viewers.emit(v));
+        try
+        {
+            let viewers = global.streams[key].viewers;
+            viewers.eventNames().forEach((v) => viewers.emit(v));
+        }
+        catch(err){ }
     })
 }, 1000)
 
@@ -31,7 +35,7 @@ module.exports.create_stream = (video_id, duration) =>
     {
         video_id : video_id,
         duration : duration,
-        start_time : new Date().getTime() + 60000, // + 1 minute to start
+        start_time : new Date().getTime() + 10000, // + 1 minute to start
         viewers : new Event()
     }
 
