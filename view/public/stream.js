@@ -6,6 +6,8 @@ function onYouTubeIframeAPIReady()
     (
         'vid',
         {
+            height: window.innerWidth * (9/16),
+            width: window.innerWidth,
             playerVars :
             {
                 origin : window.location.href,
@@ -33,7 +35,7 @@ function onStateChange(e)
     (
         !window.player_is_visible &&
         (
-            e.data == YT.PlayerState.PLAYING ||
+            e.data === YT.PlayerState.PLAYING   ||
             e.data === YT.PlayerState.BUFFERING
         )
     )
@@ -106,7 +108,7 @@ sse.onmessage = (e) =>
     }
     else if
     (
-        window.vid_player.getPlayerState() !== YT.PlayerState.PAUSED   ||
+        window.vid_player.getPlayerState() !== YT.PlayerState.PAUSED &&
         window.vid_player.getPlayerState() !== YT.PlayerState.BUFFERING
     )
     {
