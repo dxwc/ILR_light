@@ -40,6 +40,7 @@ function onStateChange(e)
     {
         document.getElementById('vid').removeAttribute('style');
         window.player_is_visible = true;
+        document.getElementById('info').innerHTML = '';
     }
 }
 
@@ -49,6 +50,12 @@ function onError(e)
 }
 // </iframe API functions> ----------------------------------------------
 
+window.dom_loaded = false;
+document.addEventListener('DOMContentLoaded', () =>
+{
+    window.dom_loaded = true;
+    window.info_node = document.getElementById('info');
+});
 
 // <server sent event> --------------------------------------------------
 sse = new EventSource('/data/' + window.location.pathname.substr(8));
@@ -57,6 +64,8 @@ function close_sse()
 {
     if(sse)
     {
+        if(!window.player_is_visible)
+            window.info_node.innerHTML = `Error, closing connection`;
         console.log('Closing connection');
         sse.close();
     }
@@ -68,7 +77,11 @@ sse.onerror = close_sse;
 window.already_cued = false;
 sse.onmessage = (e) =>
 {
-    if(!window.vid_player) return;
+    if(!window.vid_player || !window.dom_loaded)
+    {
+        window.info_node = `Loading...`;
+        return;
+    }
 
     let data;
     try        { data = JSON.parse(e.data) }
@@ -76,10 +89,10 @@ sse.onmessage = (e) =>
 
     if(!data.video_id || !typeof(data.play_at) === 'number') return close_sse();
 
-    if(data.play_at < 0)
+    if(data.play_at < -2)
     {
-        // TODO: show countdown
-        console.log(data.play_at);
+        window.info_node.innerHTML = `Video will start in ` +
+                              `${Math.round((-data.play_at) - 2)} seconds`;
         if(!window.already_cued)
         {
             window.vid_player.cueVideoById(data.video_id);
@@ -88,6 +101,7 @@ sse.onmessage = (e) =>
     }
     else if(window.vid_player.getPlayerState() === YT.PlayerState.CUED)
     {
+        window.info_node = '';
         window.vid_player.playVideo();
     }
     else if
@@ -96,6 +110,7 @@ sse.onmessage = (e) =>
         window.vid_player.getPlayerState() !== YT.PlayerState.BUFFERING
     )
     {
+        window.info_node = '';
         if(window.vid_player.getVideoData().video_id !== data.video_id)
         {
             window.vid_player.loadVideoById(data.video_id, data.play_at);
