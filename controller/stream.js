@@ -5,9 +5,11 @@ let uuid   = require('uuid/v4');
 router.get('/stream/:id', (req, res) =>
 {
     if(!val.isUUID(req.params.id, 4))
-        return res.status(404).send('You have a broken link');
+        return res.status(404).render
+        ('error', { info : `You've got a broken link 🤷` });
     if(!global.streams[req.params.id])
-        return res.status(404).send('Channel does not exist');
+        return res.status(404).render
+        ('error', { info : 'No video is currently being viewed on this link' });
     return res.render('stream');
 });
 
