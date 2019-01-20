@@ -126,7 +126,7 @@ function send_data(id, duration, wait)
 
 document.addEventListener('DOMContentLoaded', () =>
 {
-    dom_loaded = true;
+    setTimeout(() => dom_loaded = true);
 
     let inp  = document.getElementById('inp');
     let send = document.getElementById('send');

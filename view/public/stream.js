@@ -1,3 +1,7 @@
+window.dom_loaded   = false;
+window.yt_ready     = false;
+window.already_cued = false;
+
 // <iframe API functions> -----------------------------------------------
 function onYouTubeIframeAPIReady()
 {
@@ -23,7 +27,6 @@ function onYouTubeIframeAPIReady()
     );
 }
 
-window.yt_ready = false;
 function onPlayerReady(e)
 {
     window.yt_ready = true;
@@ -55,10 +58,9 @@ function onError(e)
 }
 // </iframe API functions> ----------------------------------------------
 
-window.dom_loaded = false;
 document.addEventListener('DOMContentLoaded', () =>
 {
-    window.dom_loaded = true;
+    setTimeout(() => window.dom_loaded = true);
     window.info_node = document.getElementById('info');
 });
 
@@ -79,7 +81,6 @@ function close_sse()
 
 sse.onerror = close_sse;
 
-window.already_cued = false;
 sse.onmessage = (e) =>
 {
     if(!(yt_ready && window.dom_loaded)) return;
