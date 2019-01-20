@@ -26,8 +26,12 @@ router.post('/', (req, res) =>
         return res.status(400).json({});
     }
 
+    req.body.wait = Number.parseFloat(String(req.body.wait));
+
     return res.json
-    ({ stream_id : model.create_stream(req.body.id, req.body.duration)});
+    ({
+        stream_id : model.create_stream(req.body.id, req.body.duration, req.body.wait)
+    });
 
 });
 

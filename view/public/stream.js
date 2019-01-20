@@ -93,7 +93,8 @@ sse.onmessage = (e) =>
     if(data.play_at < -2)
     {
         window.info_node.innerHTML = `Video will start in ` +
-        `${Math.round((-data.play_at) - 2)} seconds for everyone here`;
+        `${Math.round((-data.play_at) - 2)} seconds for everyone on this link`;
+
         if(!window.already_cued)
         {
             window.already_cued = true;

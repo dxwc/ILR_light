@@ -57,15 +57,18 @@ function onPlayerReady(e)
 {
     e.target.mute();
     e.target.playVideo();
-    console.log('ready to play', window.vid_player.getVideoData().video_id);
 }
 
 function onStateChange(e)
 {
     if(e.data == YT.PlayerState.PLAYING)
     {
-        document.getElementById('info').innerHTML = 'Good (TODO: send to backend)';
-        send_data(e.target.getVideoData().video_id, e.target.getDuration());
+        send_data
+        (
+            e.target.getVideoData().video_id,
+            e.target.getDuration(),
+            document.getElementById('sec').value
+        );
         e.target.stopVideo();
     }
 }
@@ -88,7 +91,7 @@ function onError(e)
 // </iframe API functions> --------------------------------------------------
 
 // <send data> --------------------------------------------------------------
-function send_data(id, duration)
+function send_data(id, duration, wait)
 {
     console.log(id, duration);
     let info = document.getElementById('info');
@@ -101,7 +104,7 @@ function send_data(id, duration)
             '/',
             {
                 method : 'POST',
-                body : JSON.stringify({ id : id, duration : duration }),
+                body : JSON.stringify({ id : id, duration : duration, wait : wait }),
                 headers : { 'Content-Type' : 'application/json' }
             }
         );
@@ -110,7 +113,7 @@ function send_data(id, duration)
     .then((res) =>
     {
         if(!res.stream_id) throw new Error('Did not recieve stream id');
-        info.innerHTML = 'Confirmed. Redirecting to stream page...';
+        info.innerHTML = '✓ Redirecting to stream page...';
         setTimeout(() => window.location.href = '/stream/' + res.stream_id, 300);
     })
     .catch((err) =>
@@ -130,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () =>
     let info = document.getElementById('info');
     let img = document.getElementById('img');
 
-    inp.addEventListener('change', process_url);
     send.addEventListener('click', process_url);
 
     function process_url()
@@ -141,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () =>
         img.removeAttribute('style');
 
         let id = get_video_id(inp.value);
-        if(!id) info.innerHTML = 'Invalid URL, need a youtube video url';
+        if(!id) info.innerHTML = 'Invalid URL, need a YouTube video URL';
         else
         {
             img.style =

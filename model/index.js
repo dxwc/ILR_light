@@ -37,15 +37,18 @@ setInterval(() =>
     });
 }, 1000)
 
-module.exports.create_stream = (video_id, duration) =>
+module.exports.create_stream = (video_id, duration, wait) =>
 {
     let stream_id = uuid();
+
+    if(typeof(wait) === 'number' && wait > 0.5 && wait < 5) wait = 60000 * wait;
+    else wait = 30000; // default, 30 seconds
 
     global.streams[stream_id] =
     {
         video_id : video_id,
         duration : duration,
-        start_time : new Date().getTime() + 30000, // + 30 seconds to start
+        start_time : new Date().getTime() + wait,
         viewers : new Event()
     }
 
